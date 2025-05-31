@@ -7,11 +7,25 @@ pid_nn_bp = Blueprint('pid_nn', __name__)
 
 @pid_nn_bp.route('/status')
 def status():
-    return jsonify({"status": "PID-NN service is temporarily unavailable during deployment"})
+    return jsonify({"status": "PID-NN service is in maintenance mode"})
 
 @pid_nn_bp.route('/health')
 def health():
     return jsonify({"status": "healthy"})
+
+@pid_nn_bp.route('/simulate', methods=['POST'])
+def simulate():
+    return jsonify({
+        "status": "service temporarily unavailable",
+        "message": "PID-NN simulation is currently in maintenance mode"
+    })
+
+@pid_nn_bp.route('/train', methods=['POST'])
+def train():
+    return jsonify({
+        "status": "service temporarily unavailable",
+        "message": "PID-NN training is currently in maintenance mode"
+    })
 
 # Add the PID-NN-main directory to the Python path
 try:

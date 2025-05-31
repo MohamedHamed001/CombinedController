@@ -4,7 +4,7 @@ flask-cors>=3.0.0
 gunicorn==21.2.0
 python-dotenv==1.1.0
 
-# PID-NN dependencies
+# Basic ML dependencies
 numpy==1.24.3
 pandas==1.5.3
 matplotlib==3.7.1
