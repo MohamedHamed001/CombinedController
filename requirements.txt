@@ -5,12 +5,11 @@ gunicorn==21.2.0
 python-dotenv==1.1.0
 
 # PID-NN dependencies
-numpy>=1.19.2
-pandas>=1.2.0
-tensorflow>=2.4.0
-tensorflow_intel==2.18.0
-matplotlib==3.10.0
-scikit-learn>=0.24.0
+numpy==1.24.3
+pandas==1.5.3
+tensorflow==2.13.0
+matplotlib==3.7.1
+scikit-learn==1.2.2
 control==0.10.1
 xmltodict==0.14.2
 
