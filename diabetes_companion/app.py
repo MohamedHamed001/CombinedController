@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
-from chatbot import DiabetesChatbot
-from knowledge_base import get_retriever
-from supabase_client import SupabaseClient
+from .chatbot import DiabetesChatbot
+from .knowledge_base import get_retriever
+from .supabase_client import SupabaseClient
 from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
