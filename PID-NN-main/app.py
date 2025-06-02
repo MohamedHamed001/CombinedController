@@ -15,52 +15,27 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuration
-PATIENT_DATA_FILE = "patient_data.json"
+DEFAULT_WEIGHT = 70.0
 
 # Initialize the insulin simulator with default values
 simulator = None
 latest_glucose = None
 latest_glucose_time = None
+patient_weight = float(os.getenv('PATIENT_WEIGHT', DEFAULT_WEIGHT))
 
-def load_patient_data():
-    """Load patient data from JSON file."""
-    try:
-        if os.path.exists(PATIENT_DATA_FILE):
-            with open(PATIENT_DATA_FILE, 'r') as f:
-                return json.load(f)
-        return {"weight": 70.0}  # Default weight if no data file exists
-    except Exception as e:
-        print("Error loading patient data: {}".format(e))
-        return {"weight": 70.0}
-
-def save_patient_data(data):
-    """Save patient data to JSON file."""
-    try:
-        with open(PATIENT_DATA_FILE, 'w') as f:
-            json.dump(data, f)
-    except Exception as e:
-        print("Error saving patient data: {}".format(e))
-
-def initialize_simulator(weight=70.0):
+def initialize_simulator(weight=DEFAULT_WEIGHT):
     """Initialize the insulin simulator with the trained model."""
     global simulator
     model_path = os.path.join('models', 'nn_pid_tuning_model.h5')
     print(f"Loading model from: {model_path}")
     print(f"Model exists: {os.path.exists(model_path)}")
     
-    # Create a dummy test case file with weight
-    test_case_path = 'dummy_test_case.txt'
-    print(f"Creating test case file: {test_case_path}")
-    with open(test_case_path, 'w') as f:
-        f.write("Body Weight: {} kg\n".format(weight))
-    
     print("Initializing simulator with:")
     print(f"- Model path: {model_path}")
-    print(f"- Test case path: {test_case_path}")
     print(f"- Weight: {weight} kg")
     print(f"- Simulation time: 24 hours")
     
-    simulator = InsulinSimulator(model_path, test_case_path, 24 * 60 * 60 * 10**9)  # 24 hours in nanoseconds
+    simulator = InsulinSimulator(model_path, None, 24 * 60 * 60 * 10**9)  # 24 hours in nanoseconds
     print("Simulator initialized successfully")
 
 @app.route('/update_glucose', methods=['POST'])
@@ -105,14 +80,13 @@ def update_patient():
     try:
         data = request.get_json()
         if 'weight' in data:
-            patient_data = load_patient_data()
-            patient_data['weight'] = float(data['weight'])
-            save_patient_data(patient_data)
+            global patient_weight
+            patient_weight = float(data['weight'])
             
             # Reinitialize simulator with new weight
             global simulator
             simulator = None
-            initialize_simulator(patient_data['weight'])
+            initialize_simulator(patient_weight)
             
             return jsonify({
                 'status': 'success',
@@ -134,7 +108,7 @@ def predict():
     print("\n=== Predict endpoint called ===")
     
     # Get the latest glucose reading from global variables
-    global latest_glucose, latest_glucose_time
+    global latest_glucose, latest_glucose_time, patient_weight
     print(f"Latest glucose: {latest_glucose}")
     print(f"Latest glucose time: {latest_glucose_time}")
     
@@ -142,10 +116,10 @@ def predict():
         print("No glucose reading available")
         return jsonify({"error": "No glucose reading available"}), 400
     
-    # Get patient weight from the request
+    # Get patient weight from the request or use stored value
     weight = request.args.get('weight', type=float)
     if not weight:
-        weight = 70.0  # Default weight if not provided
+        weight = patient_weight
     print(f"Using patient weight: {weight} kg")
     
     # Get current time in nanoseconds
@@ -154,16 +128,10 @@ def predict():
     print(f"Current time (ns): {current_time_ns}")
     
     try:
-        # Create a dummy test case file with weight
-        test_case_path = 'dummy_test_case.txt'
-        print(f"Creating test case file: {test_case_path}")
-        with open(test_case_path, 'w') as f:
-            f.write("Body Weight: {} kg\n".format(weight))
-        
         # Initialize simulator with current time
         simulator = InsulinSimulator(
-            model_path='models/nn_pid_tuning_model.h5',  # Changed path to match the one used in initialize_simulator
-            test_case_path=test_case_path,
+            model_path='models/nn_pid_tuning_model.h5',
+            test_case_path=None,
             totalSimulationTimeInNs=current_time_ns
         )
         
@@ -199,37 +167,15 @@ def predict():
             "insulin_rate": insulin_rate,
             "units_per_hour": insulin_rate
         })
-        
     except Exception as e:
-        print(f"Error in predict endpoint: {str(e)}")
-        print(f"Error type: {type(e)}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
+        print(f"Error in predict: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
-    try:
-        if latest_glucose is None:
-            return jsonify({
-                'status': 'error',
-                'message': 'No glucose reading available'
-            }), 503
-        
-        return jsonify({
-            'status': 'healthy',
-            'glucose': latest_glucose,
-            'last_update': latest_glucose_time.isoformat() if latest_glucose_time else None
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 503
+    return jsonify({"status": "healthy"})
 
-if __name__ == '__main__':
-    # Initialize the simulator when the app starts
-    patient_data = load_patient_data()
-    initialize_simulator(patient_data.get('weight', 70.0))
-    app.run(host='0.0.0.0', port=5000) 
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5001))
+    app.run(host="0.0.0.0", port=port) 
