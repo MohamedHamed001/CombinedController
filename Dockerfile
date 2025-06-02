@@ -5,6 +5,10 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
+    git \
+    curl \
+    pkg-config \
+    libopenblas-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
@@ -21,8 +25,13 @@ COPY requirements.txt .
 
 # Install Python dependencies in stages
 RUN pip install --no-cache-dir flask==3.1.1 flask-cors>=3.0.0 gunicorn==21.2.0 python-dotenv==1.1.0 requests==2.31.0 && \
+    pip install --no-cache-dir numpy==1.26.4 pandas==2.2.0 scikit-learn==1.6.1 && \
     pip install --no-cache-dir torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir tensorflow-cpu==2.15.0 && \
+    pip install --no-cache-dir langchain==0.3.25 langchain-huggingface==0.2.0 langchain-community==0.3.24 langchain-groq==0.3.2 && \
+    pip install --no-cache-dir transformers==4.43.0 sentence-transformers==2.6.1 faiss-cpu==1.11.0 && \
+    pip install --no-cache-dir langdetect==1.0.9 deep-translator==1.11.4 && \
+    pip install --no-cache-dir matplotlib==3.10.0 control==0.10.1 xmltodict==0.14.2
 
 # Copy the rest of the application
 COPY . .
