@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import tensorflow as tf
-from src.artificial_pancreas_simulator import InsulinSimulator
+from .src.artificial_pancreas_simulator import InsulinSimulator
 import os
 import requests
 import json
