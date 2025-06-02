@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/chat",
+      "dest": "/api/chat.py"
+    },
+    {
+      "src": "/api/predict",
+      "dest": "/api/predict.py"
+    },
+    {
+      "src": "/api/update_glucose",
+      "dest": "/api/update_glucose.py"
+    },
+    {
+      "src": "/api/update_patient",
+      "dest": "/api/update_patient.py"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health.py"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": ".",
+    "TF_CPP_MIN_LOG_LEVEL": "2",
+    "TF_FORCE_GPU_ALLOW_GROWTH": "true",
+    "TF_MEMORY_ALLOCATION": "0.5"
+  }
+} 
