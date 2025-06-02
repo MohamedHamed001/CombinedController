@@ -6,7 +6,8 @@ requests==2.31.0
 numpy==1.26.4
 pandas==2.2.0
 scikit-learn==1.6.1
-torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==2.1.0+cpu
 tensorflow-cpu==2.15.0
 
 # Diabetes Companion dependencies
@@ -21,8 +22,4 @@ langdetect==1.0.9
 deep-translator==1.11.4
 matplotlib==3.10.0
 control==0.10.1
-xmltodict==0.14.2
-
-# Platform specific
---platform manylinux2014_x86_64
---only-binary=:all: 
+xmltodict==0.14.2 
