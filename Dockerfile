@@ -13,11 +13,16 @@ ENV PYTHONUNBUFFERED=1 \
     TF_CPP_MIN_LOG_LEVEL=2 \
     PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
 
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
+
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies in stages
+RUN pip install --no-cache-dir flask==3.1.1 flask-cors>=3.0.0 gunicorn==21.2.0 python-dotenv==1.1.0 requests==2.31.0 && \
+    pip install --no-cache-dir torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
 COPY . .
