@@ -10,7 +10,8 @@ langchain-huggingface==0.2.0
 langchain-community==0.3.24
 langchain-groq==0.3.2
 transformers==4.43.0
-torch==2.1.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.0+cpu
 scikit-learn==1.6.1
 numpy==1.26.4
 sentence-transformers==2.6.1
@@ -20,8 +21,7 @@ deep-translator==1.11.4
 
 # PID-NN dependencies
 pandas>=1.2.0
-tensorflow>=2.4.0
-tensorflow_intel==2.18.0
+tensorflow-cpu==2.15.0
 matplotlib==3.10.0
 control==0.10.1
 xmltodict==0.14.2 
