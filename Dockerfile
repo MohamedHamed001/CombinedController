@@ -24,14 +24,15 @@ COPY . .
 
 # Create a startup script
 RUN echo '#!/bin/bash\n\
-PORT=${PORT:-5000}\n\
-PORT2=$((PORT + 1))\n\
-gunicorn diabetes_companion.app:app --bind 0.0.0.0:$PORT &\n\
-gunicorn PID-NN-main.app:app --bind 0.0.0.0:$PORT2\n\
+# Start the backend services\n\
+gunicorn diabetes_companion.app:app --bind 0.0.0.0:5000 &\n\
+gunicorn PID-NN-main.app:app --bind 0.0.0.0:5001 &\n\
+# Start the main router\n\
+gunicorn app:app --bind 0.0.0.0:$PORT\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
-# Expose ports
-EXPOSE $PORT $((PORT + 1))
+# Expose the main port
+EXPOSE $PORT
 
-# Start both applications
+# Start the application
 CMD ["/app/start.sh"] 
